@@ -1,6 +1,5 @@
 :root {
   --bg: #050817;
-  --panel: #0b1023;
   --card: #0f172a;
   --border: rgba(255,255,255,0.08);
   --text: #e5e7eb;
@@ -14,14 +13,13 @@
 body {
   margin: 0;
   font-family: Inter, system-ui, sans-serif;
-  color: var(--text);
   background: radial-gradient(circle at top, #0b1023, #050817 60%);
+  color: var(--text);
 }
 
 /* HEADER */
 .topbar {
   background: rgba(5,8,23,0.9);
-  backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
 
@@ -31,22 +29,21 @@ body {
   padding: 14px 20px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
 }
 
 .brand { font-weight: 700; }
 
 .nav a {
+  margin-left: 20px;
   color: var(--muted);
   text-decoration: none;
-  margin-left: 20px;
 }
 
 .nav .cta {
   background: var(--blue);
-  color: white;
   padding: 8px 14px;
   border-radius: 8px;
+  color: white;
 }
 
 /* TICKER */
@@ -91,7 +88,7 @@ body {
   font-size: 0.85rem;
 }
 
-/* MAIN */
+/* CONTENT */
 #content {
   max-width: 1280px;
   margin: 60px auto;
@@ -133,9 +130,9 @@ body {
 }
 
 .card h3 {
-  margin: 0 0 12px;
-  font-size: 0.9rem;
+  margin: 0 0 10px;
   color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .price {
@@ -144,9 +141,9 @@ body {
 }
 
 .footer {
-  border-top: 1px solid var(--border);
   text-align: center;
   padding: 20px;
-  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
   color: var(--muted);
+  font-size: 0.8rem;
 }
