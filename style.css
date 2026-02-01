@@ -6,8 +6,6 @@
   --text: #e5e7eb;
   --muted: #9ca3af;
   --blue: #3b82f6;
-  --green: #22c55e;
-  --red: #ef4444;
   --glow: linear-gradient(90deg,#3b82f6,#8b5cf6,#3b82f6);
 }
 
@@ -20,7 +18,7 @@ body {
   background: radial-gradient(circle at top, #0b1023, #050817 60%);
 }
 
-/* TOP BAR */
+/* HEADER */
 .topbar {
   background: rgba(5,8,23,0.9);
   backdrop-filter: blur(10px);
@@ -36,17 +34,13 @@ body {
   align-items: center;
 }
 
-.brand {
-  font-weight: 700;
-}
+.brand { font-weight: 700; }
 
 .nav a {
   color: var(--muted);
   text-decoration: none;
   margin-left: 20px;
 }
-
-.nav a:hover { color: var(--text); }
 
 .nav .cta {
   background: var(--blue);
@@ -81,7 +75,7 @@ body {
 .ticker-track {
   display: flex;
   width: max-content;
-  animation: slide 35s linear infinite;
+  animation: slide 40s linear infinite;
 }
 
 @keyframes slide {
@@ -104,7 +98,6 @@ body {
   padding: 0 20px;
 }
 
-/* HERO */
 .hero {
   text-align: center;
   margin-bottom: 60px;
@@ -126,14 +119,12 @@ body {
   margin: 16px auto;
 }
 
-/* GRID */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 22px;
 }
 
-/* CARD */
 .card {
   background: linear-gradient(180deg,#0f172a,#0b1224);
   border: 1px solid var(--border);
@@ -152,7 +143,6 @@ body {
   font-weight: 700;
 }
 
-/* FOOTER */
 .footer {
   border-top: 1px solid var(--border);
   text-align: center;
