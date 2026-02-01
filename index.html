@@ -2,26 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Forex Intelligence Dashboard</title>
+  <title>Forex Pulse Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
-<header>
-  <h1>📊 Forex Intelligence Dashboard</h1>
-  <nav>
-    <button onclick="location.hash='#news'">News</button>
-    <button onclick="location.hash='#calendar-today'">Today</button>
-    <button onclick="location.hash='#calendar-tomorrow'">Tomorrow</button>
-    <button onclick="location.hash='#forecast'">Forecast</button>
-    <button onclick="location.hash='#signals'">Signals</button>
-  </nav>
+<header class="site-header">
+  <div class="header-inner">
+    <h1 class="logo">Forex Pulse</h1>
+    <nav class="nav">
+      <a href="#news">News</a>
+      <a href="#calendar-today">Today</a>
+      <a href="#calendar-tomorrow">Tomorrow</a>
+      <a href="#forecast">Forecast</a>
+      <a href="#signals">Signals</a>
+    </nav>
+  </div>
 </header>
 
-<main id="content">
-  <p>Loading…</p>
+<main class="container">
+  <section id="content">
+    <p>Loading…</p>
+  </section>
 </main>
+
+<footer class="site-footer">
+  <p>
+    Educational market analysis only. Not financial advice.
+  </p>
+</footer>
 
 <script src="./app.js"></script>
 </body>
