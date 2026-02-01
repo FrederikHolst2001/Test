@@ -1,7 +1,9 @@
 const content = document.getElementById("content");
 const ticker = document.getElementById("ticker");
 
-// ================= MARKET DATA =================
+let dashboardInterval = null;
+
+// ================= DATA =================
 async function fetchRates() {
   const res = await fetch("https://open.er-api.com/v6/latest/USD");
   const data = await res.json();
@@ -10,41 +12,40 @@ async function fetchRates() {
 
 // ================= DASHBOARD =================
 async function loadDashboard() {
-  const rates = await fetchRates();
+  if (dashboardInterval) clearInterval(dashboardInterval);
+  await updateDashboard();
+  dashboardInterval = setInterval(updateDashboard, 30000);
+}
 
-  // TICKER
-  const tickerPairs = [
-    ["EUR/USD", rates.EUR],
-    ["GBP/USD", rates.GBP],
-    ["USD/JPY", rates.JPY],
-    ["USD/CHF", rates.CHF],
-    ["AUD/USD", rates.AUD],
-    ["USD/CAD", rates.CAD]
+async function updateDashboard() {
+  const r = await fetchRates();
+
+  const pairs = [
+    ["EUR/USD", r.EUR],
+    ["GBP/USD", r.GBP],
+    ["USD/JPY", r.JPY],
+    ["USD/CHF", r.CHF],
+    ["AUD/USD", r.AUD],
+    ["USD/CAD", r.CAD]
   ];
 
-  ticker.innerHTML = tickerPairs.map(p =>
-    `${p[0]} <strong>${p[1].toFixed(4)}</strong>`
-  ).join(" &nbsp; | &nbsp; ");
+  ticker.innerHTML = pairs
+    .map(p => `${p[0]} <strong>${p[1].toFixed(4)}</strong>`)
+    .join(" &nbsp; • &nbsp; ");
 
   content.innerHTML = `
     <section class="hero">
-      <h1>Professional Forex Trading Intelligence</h1>
-      <p>Real-time prices, market analysis, economic calendar and signals</p>
+      <h1>Professional Forex <span>Trading Intelligence</span></h1>
+      <p>Real-time prices, market analysis, economic calendar and AI-style insights.</p>
     </section>
 
     <section class="grid">
-      ${priceCard("EUR/USD", rates.EUR)}
-      ${priceCard("GBP/USD", rates.GBP)}
-      ${priceCard("USD/JPY", rates.JPY)}
-      ${priceCard("USD/CHF", rates.CHF)}
-      ${priceCard("AUD/USD", rates.AUD)}
-      ${priceCard("USD/CAD", rates.CAD)}
+      ${pairs.map(p => priceCard(p[0], p[1])).join("")}
     </section>
 
-    <section class="card overview">
-      <h3>Market Overview</h3>
-      <p>USD strength remains the primary driver across FX markets.</p>
-      <p>Gold and crypto show increased volatility during US sessions.</p>
+    <section class="card" style="margin-top:40px;">
+      <h3>🤖 Market Summary</h3>
+      <p>The US Dollar remains firm across majors while risk assets show mixed momentum. Traders are closely monitoring upcoming macro catalysts.</p>
     </section>
   `;
 }
@@ -58,15 +59,26 @@ function priceCard(pair, price) {
   `;
 }
 
+// ================= PLACEHOLDER PAGES =================
+function loadPlaceholder(title, text) {
+  if (dashboardInterval) clearInterval(dashboardInterval);
+
+  content.innerHTML = `
+    <section class="hero">
+      <h1>${title}</h1>
+      <p>${text}</p>
+    </section>
+  `;
+}
+
 // ================= ROUTER =================
 function handleRoute() {
   const h = window.location.hash;
 
-  if (h === "#news") loadNews();
-  else if (h === "#calendar-today") loadEvents(0);
-  else if (h === "#signals") loadSignals();
-  else if (h === "#charts") loadCharts();
-  else loadDashboard(); // DEFAULT
+  if (h === "#news") loadPlaceholder("Market News", "Latest forex and macroeconomic headlines.");
+  else if (h === "#calendar-today") loadPlaceholder("Economic Calendar", "Upcoming high-impact events.");
+  else if (h === "#signals") loadPlaceholder("Trading Signals", "Educational market bias and setups.");
+  else loadDashboard();
 }
 
 // ================= INIT =================
