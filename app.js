@@ -3,7 +3,7 @@ const ticker = document.getElementById("ticker");
 
 let dashboardInterval = null;
 
-/* ---------- FORMATTER ---------- */
+/* ================= FORMAT ================= */
 function formatPrice(symbol, value) {
   if (!value) return "—";
 
@@ -23,7 +23,7 @@ function formatPrice(symbol, value) {
   return value.toFixed(5);
 }
 
-/* ---------- DATA FETCH ---------- */
+/* ================= FETCH REAL DATA ================= */
 async function fetchRates() {
   const [fx, crypto, metals] = await Promise.all([
     fetch("https://open.er-api.com/v6/latest/USD").then(r => r.json()),
@@ -33,25 +33,35 @@ async function fetchRates() {
       .catch(() => null)
   ]);
 
-  const xauUsd =
-    metals && metals.rates && metals.rates.XAU
+  // FX (correctly inverted where needed)
+  const EURUSD = 1 / fx.rates.EUR;
+  const GBPUSD = 1 / fx.rates.GBP;
+  const AUDUSD = 1 / fx.rates.AUD;
+
+  const USDJPY = fx.rates.JPY;
+  const USDCHF = fx.rates.CHF;
+  const USDCAD = fx.rates.CAD;
+
+  // GOLD (XAU/USD)
+  const XAUUSD =
+    metals && metals.rates?.XAU
       ? 1 / metals.rates.XAU
       : null;
 
   return {
-    EURUSD: fx.rates.EUR,
-    GBPUSD: fx.rates.GBP,
-    USDJPY: fx.rates.JPY,
-    USDCHF: fx.rates.CHF,
-    AUDUSD: fx.rates.AUD,
-    USDCAD: fx.rates.CAD,
-    XAUUSD: xauUsd,
+    EURUSD,
+    GBPUSD,
+    AUDUSD,
+    USDJPY,
+    USDCHF,
+    USDCAD,
+    XAUUSD,
     BTCUSD: crypto.bitcoin.usd,
     ETHUSD: crypto.ethereum.usd
   };
 }
 
-/* ---------- DASHBOARD ---------- */
+/* ================= DASHBOARD ================= */
 async function loadDashboard() {
   if (dashboardInterval) clearInterval(dashboardInterval);
   await updateDashboard();
@@ -73,6 +83,7 @@ async function updateDashboard() {
     ["ETH/USD", r.ETHUSD]
   ];
 
+  // Ticker (duplicated for infinite scroll)
   ticker.innerHTML =
     assets.map(a =>
       `<span>${a[0]} <strong>${formatPrice(a[0], a[1])}</strong></span>`
@@ -98,33 +109,16 @@ async function updateDashboard() {
     </section>
 
     <section class="card" style="margin-top:40px;">
-      <h3>🧠 Market Summary</h3>
-      <p>The US Dollar remains firm across majors while gold and crypto show elevated volatility.</p>
+      <h3>📊 Market Summary</h3>
+      <p>
+        USD strength remains dominant across FX markets while gold and crypto
+        experience elevated volatility amid risk repricing.
+      </p>
     </section>
   `;
 }
 
-/* ---------- OTHER PAGES ---------- */
-function loadAnalysis() {
-  if (dashboardInterval) clearInterval(dashboardInterval);
-  content.innerHTML = `
-    <section class="hero">
-      <h1>Market <span>Analysis</span></h1>
-      <p>Technical bias, macro outlook and cross-asset insights.</p>
-    </section>
-  `;
-}
-
-async function loadNews() {
-  if (dashboardInterval) clearInterval(dashboardInterval);
-  content.innerHTML = `
-    <section class="hero">
-      <h1>Market <span>News</span></h1>
-      <p>No news available right now.</p>
-    </section>
-  `;
-}
-
+/* ================= ROUTER ================= */
 function loadPlaceholder(title, text) {
   if (dashboardInterval) clearInterval(dashboardInterval);
   content.innerHTML = `
@@ -135,13 +129,12 @@ function loadPlaceholder(title, text) {
   `;
 }
 
-/* ---------- ROUTER ---------- */
 function handleRoute() {
   const h = window.location.hash;
-  if (h === "#analysis") loadAnalysis();
-  else if (h === "#news") loadNews();
-  else if (h === "#calendar-today") loadPlaceholder("Economic Calendar","Upcoming high-impact events.");
-  else if (h === "#signals") loadPlaceholder("Trading Signals","Educational market bias and setups.");
+  if (h === "#analysis") loadPlaceholder("Market Analysis", "Technical and macro outlook.");
+  else if (h === "#news") loadPlaceholder("Market News", "Live headlines coming soon.");
+  else if (h === "#calendar-today") loadPlaceholder("Economic Calendar", "Upcoming events.");
+  else if (h === "#signals") loadPlaceholder("Trading Signals", "Educational market bias.");
   else loadDashboard();
 }
 
