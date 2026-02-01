@@ -5,9 +5,10 @@
   <title>Forex Pulse</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./style.css" />
 </head>
@@ -15,26 +16,31 @@
 
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="brand">Forex Pulse</div>
+    <div class="brand">
+      <span class="logo-dot"></span>
+      Forex Pulse
+    </div>
+
     <nav class="nav">
       <a href="#dashboard">Dashboard</a>
-      <a href="#news">News</a>
-      <a href="#charts">Charts</a>
+      <a href="#analysis">Analysis</a>
       <a href="#calendar-today">Calendar</a>
-      <a href="#signals">Signals</a>
+      <a href="#news">News</a>
+      <a href="#signals" class="cta">Signals</a>
     </nav>
   </div>
 </header>
 
-<!-- LIVE TICKER -->
-<div id="ticker" class="ticker">
-  Loading market prices…
+<!-- 🔄 RUNNING TICKER -->
+<div class="ticker-wrapper">
+  <div id="ticker" class="ticker">Loading market prices…</div>
 </div>
 
+<!-- PAGE CONTENT -->
 <main id="content"></main>
 
 <footer class="footer">
-  Educational analysis only. Not financial advice.
+  <p>Educational market analysis only. Not financial advice.</p>
 </footer>
 
 <script src="./app.js"></script>
