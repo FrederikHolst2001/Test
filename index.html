@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Forex Pulse Dashboard</title>
+  <title>Forex Pulse</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Google Fonts -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -19,24 +19,42 @@
     <h1 class="logo">Forex Pulse</h1>
     <nav class="nav">
       <a href="#news">News</a>
-      <a href="#calendar-today">Today</a>
-      <a href="#calendar-tomorrow">Tomorrow</a>
-      <a href="#forecast">Forecast</a>
+      <a href="#charts">Charts</a>
+      <a href="#calendar-today">Calendar</a>
       <a href="#signals">Signals</a>
     </nav>
   </div>
 </header>
 
-<main class="container">
+<!-- CATEGORY BAR -->
+<div class="category-bar">
+  <button onclick="setCategory('ALL')">All</button>
+  <button onclick="setCategory('USD')">USD</button>
+  <button onclick="setCategory('EUR')">EUR</button>
+  <button onclick="setCategory('GOLD')">Gold</button>
+  <button onclick="setCategory('CRYPTO')">Crypto</button>
+
+  <input
+    id="searchInput"
+    type="search"
+    placeholder="Search news…"
+    oninput="applyFilters()"
+  />
+</div>
+
+<main class="layout">
   <section id="content">
     <p>Loading…</p>
   </section>
+
+  <aside class="sidebar">
+    <h3>Live FX Rates</h3>
+    <div id="rates">Loading…</div>
+  </aside>
 </main>
 
 <footer class="site-footer">
-  <p>
-    Educational market analysis only. Not financial advice.
-  </p>
+  <p>Educational market analysis only. Not financial advice.</p>
 </footer>
 
 <script src="./app.js"></script>
