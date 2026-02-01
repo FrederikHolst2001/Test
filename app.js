@@ -5,9 +5,22 @@ let dashboardInterval = null;
 
 // ================= DATA =================
 async function fetchRates() {
-  const res = await fetch("https://open.er-api.com/v6/latest/USD");
-  const data = await res.json();
-  return data.rates;
+  const [fx, crypto] = await Promise.all([
+    fetch("https://open.er-api.com/v6/latest/USD").then(r => r.json()),
+    fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd").then(r => r.json())
+  ]);
+
+  return {
+    EURUSD: fx.rates.EUR,
+    GBPUSD: fx.rates.GBP,
+    USDJPY: fx.rates.JPY,
+    USDCHF: fx.rates.CHF,
+    AUDUSD: fx.rates.AUD,
+    USDCAD: fx.rates.CAD,
+    XAUUSD: 2030, // fallback gold reference
+    BTCUSD: crypto.bitcoin.usd,
+    ETHUSD: crypto.ethereum.usd
+  };
 }
 
 // ================= DASHBOARD =================
@@ -20,18 +33,23 @@ async function loadDashboard() {
 async function updateDashboard() {
   const r = await fetchRates();
 
-  const pairs = [
-    ["EUR/USD", r.EUR],
-    ["GBP/USD", r.GBP],
-    ["USD/JPY", r.JPY],
-    ["USD/CHF", r.CHF],
-    ["AUD/USD", r.AUD],
-    ["USD/CAD", r.CAD]
+  const assets = [
+    ["EUR/USD", r.EURUSD],
+    ["GBP/USD", r.GBPUSD],
+    ["USD/JPY", r.USDJPY],
+    ["USD/CHF", r.USDCHF],
+    ["AUD/USD", r.AUDUSD],
+    ["USD/CAD", r.USDCAD],
+    ["XAU/USD", r.XAUUSD],
+    ["BTC/USD", r.BTCUSD],
+    ["ETH/USD", r.ETHUSD]
   ];
 
-  ticker.innerHTML = pairs
-    .map(p => `${p[0]} <strong>${p[1].toFixed(4)}</strong>`)
-    .join(" &nbsp; • &nbsp; ");
+  const tickerHTML = assets
+    .map(a => `<span>${a[0]} <strong>${a[1].toFixed(2)}</strong></span>`)
+    .join(" • ");
+
+  ticker.innerHTML = tickerHTML + " • " + tickerHTML;
 
   content.innerHTML = `
     <section class="hero">
@@ -40,29 +58,83 @@ async function updateDashboard() {
     </section>
 
     <section class="grid">
-      ${pairs.map(p => priceCard(p[0], p[1])).join("")}
+      ${assets.map(a => `
+        <div class="card">
+          <h3>${a[0]}</h3>
+          <div class="price">${a[1].toLocaleString()}</div>
+        </div>
+      `).join("")}
     </section>
 
     <section class="card" style="margin-top:40px;">
       <h3>🤖 Market Summary</h3>
-      <p>The US Dollar remains firm across majors while risk assets show mixed momentum. Traders are closely monitoring upcoming macro catalysts.</p>
+      <p>The US Dollar remains firm across majors while gold and crypto show elevated volatility.</p>
     </section>
   `;
 }
 
-function priceCard(pair, price) {
-  return `
-    <div class="card">
-      <h3>${pair}</h3>
-      <div class="price">${price.toFixed(4)}</div>
-    </div>
+// ================= ANALYSIS =================
+function loadAnalysis() {
+  if (dashboardInterval) clearInterval(dashboardInterval);
+
+  content.innerHTML = `
+    <section class="hero">
+      <h1>Market <span>Analysis</span></h1>
+      <p>Technical bias, macro outlook and cross-asset insights.</p>
+    </section>
+
+    <section class="grid">
+      <div class="card"><h3>USD Outlook</h3><p>USD remains supported by yields and data.</p></div>
+      <div class="card"><h3>Gold</h3><p>Gold consolidates near key resistance.</p></div>
+      <div class="card"><h3>Crypto</h3><p>BTC and ETH remain volatile amid ETF flows.</p></div>
+    </section>
   `;
 }
 
-// ================= PLACEHOLDER PAGES =================
-function loadPlaceholder(title, text) {
+// ================= NEWS =================
+async function loadNews() {
   if (dashboardInterval) clearInterval(dashboardInterval);
 
+  content.innerHTML = `
+    <section class="hero">
+      <h1>Market <span>News</span></h1>
+      <p>Latest forex and macroeconomic headlines.</p>
+    </section>
+    <section id="news-list"></section>
+  `;
+
+  try {
+    const res = await fetch("/api/news");
+    const data = await res.json();
+
+    const list = document.getElementById("news-list");
+
+    if (!data.length) {
+      list.innerHTML = `<div class="card">No news available.</div>`;
+      return;
+    }
+
+    list.innerHTML = `
+      <section class="grid">
+        ${data.map(n => `
+          <article class="card">
+            <h3>${n.title}</h3>
+            <p style="color:#9ca3af">${n.source}</p>
+            <a href="${n.link}" target="_blank" style="color:#60a5fa">
+              Read full article →
+            </a>
+          </article>
+        `).join("")}
+      </section>
+    `;
+  } catch {
+    content.innerHTML += `<div class="card">Failed to load news.</div>`;
+  }
+}
+
+// ================= PLACEHOLDER =================
+function loadPlaceholder(title, text) {
+  if (dashboardInterval) clearInterval(dashboardInterval);
   content.innerHTML = `
     <section class="hero">
       <h1>${title}</h1>
@@ -75,9 +147,10 @@ function loadPlaceholder(title, text) {
 function handleRoute() {
   const h = window.location.hash;
 
-  if (h === "#news") loadPlaceholder("Market News", "Latest forex and macroeconomic headlines.");
-  else if (h === "#calendar-today") loadPlaceholder("Economic Calendar", "Upcoming high-impact events.");
-  else if (h === "#signals") loadPlaceholder("Trading Signals", "Educational market bias and setups.");
+  if (h === "#analysis") loadAnalysis();
+  else if (h === "#news") loadNews();
+  else if (h === "#calendar-today") loadPlaceholder("Economic Calendar","Upcoming high-impact events.");
+  else if (h === "#signals") loadPlaceholder("Trading Signals","Educational market bias and setups.");
   else loadDashboard();
 }
 
