@@ -1,6 +1,7 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://forex-backend-sq8t.onrender.com" }
+    { "source": "/api/(.*)", "destination": "https://forex-backend-sq8t.onrender.com/api/$1" }
   ]
 }
+
