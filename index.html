@@ -2,30 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Forex Intelligence</title>
-
+  <title>Forex Intelligence Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
-  <header>
-    <h1>📊 Forex Intelligence Dashboard</h1>
-    <nav>
-      <button onclick="location.hash='#news'">News</button>
-      <button onclick="location.hash='#calendar-today'">Today</button>
-      <button onclick="location.hash='#calendar-tomorrow'">Tomorrow</button>
-      <button onclick="location.hash='#forecast'">Forecast</button>
-    </nav>
-  </header>
+<header>
+  <h1>📊 Forex Intelligence Dashboard</h1>
+  <nav>
+    <button onclick="location.hash='#news'">News</button>
+    <button onclick="location.hash='#calendar-today'">Today</button>
+    <button onclick="location.hash='#calendar-tomorrow'">Tomorrow</button>
+    <button onclick="location.hash='#forecast'">Forecast</button>
+    <button onclick="location.hash='#signals'">Signals</button>
+  </nav>
+</header>
 
-  <!-- THIS MUST EXIST -->
-  <main id="content">
-    <p>Loading…</p>
-  </main>
+<main id="content">
+  <p>Loading…</p>
+</main>
 
-  <!-- JS MUST LOAD LAST -->
-  <script src="./app.js"></script>
+<script src="./app.js"></script>
 </body>
 </html>
