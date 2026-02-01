@@ -1,8 +1,7 @@
-// ================= BOOT SAFETY =================
+// ================= SAFETY NET =================
 process.on("unhandledRejection", err => {
   console.error("❌ UNHANDLED REJECTION:", err);
 });
-
 process.on("uncaughtException", err => {
   console.error("❌ UNCAUGHT EXCEPTION:", err);
 });
@@ -30,11 +29,11 @@ app.get("/health", (req, res) => {
   res.json({
     ok: true,
     uptime: process.uptime(),
-    timestamp: new Date().toISOString()
+    time: new Date().toISOString()
   });
 });
 
-// ================= NEWS =================
+// ================= FOREX NEWS =================
 const NEWS_SOURCES = [
   { name: "FXStreet", url: "https://www.fxstreet.com/rss/news" },
   { name: "Investing", url: "https://www.investing.com/rss/news_1.rss" },
@@ -75,21 +74,18 @@ async function fetchExternalNews(limit = 15) {
 
 app.get("/api/news", async (req, res) => {
   try {
-    const news = await fetchExternalNews();
-    res.json(news);
+    res.json(await fetchExternalNews());
   } catch (err) {
-    console.error("NEWS ERROR:", err);
     res.status(500).json({ error: "Failed to fetch news" });
   }
 });
 
-// ================= FOREX FACTORY EVENTS =================
+// ================= ECONOMIC CALENDAR =================
 const FF_URL = "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
 let ffCache = { data: [], ts: 0 };
 
 async function getForexFactory() {
   if (Date.now() - ffCache.ts < 5 * 60 * 1000) return ffCache.data;
-
   try {
     const r = await fetch(FF_URL, {
       headers: { "User-Agent": "Mozilla/5.0 ForexBot" }
@@ -98,7 +94,7 @@ async function getForexFactory() {
     ffCache = { data: j, ts: Date.now() };
     return j;
   } catch (err) {
-    console.error("FF ERROR:", err.message);
+    console.error("ForexFactory error:", err.message);
     return [];
   }
 }
@@ -113,11 +109,11 @@ app.get("/api/events", async (req, res) => {
     const data = await getForexFactory();
     const out = data.filter(e => {
       let d;
-      if (e.timestamp) {
+      if (e.timestamp)
         d = new Date(e.timestamp * 1000).toISOString().split("T")[0];
-      } else if (e.date) {
+      else if (e.date)
         d = new Date(e.date).toISOString().split("T")[0];
-      }
+
       return (
         d === dstr &&
         ["high", "medium"].includes((e.impact || "").toLowerCase())
@@ -126,67 +122,67 @@ app.get("/api/events", async (req, res) => {
 
     res.json(out);
   } catch (err) {
-    console.error("EVENT ERROR:", err);
     res.status(500).json({ error: "Failed to fetch events" });
   }
 });
 
-// ================= FORECAST =================
-function sma(values, length) {
-  const out = [];
-  let sum = 0;
-  for (let i = 0; i < values.length; i++) {
-    sum += values[i];
-    if (i >= length) sum -= values[i - length];
-    if (i >= length - 1) out.push(sum / length);
-  }
-  return out;
-}
-
+// ================= MARKET FORECAST (FIXED) =================
 app.get("/api/forecast", async (req, res) => {
-  try {
-    const symbols = [
-      { key: "EURUSD", y: "EURUSD=X" },
-      { key: "GBPUSD", y: "GBPUSD=X" },
-      { key: "BTCUSD", y: "BTC-USD" }
-    ];
+  const symbols = [
+    { key: "EURUSD", y: "EURUSD=X" },
+    { key: "GBPUSD", y: "GBPUSD=X" },
+    { key: "BTCUSD", y: "BTC-USD" }
+  ];
 
-    const result = [];
+  const result = [];
 
-    for (const s of symbols) {
+  for (const s of symbols) {
+    try {
       const h = await yahooFinance.historical(s.y, {
         period1: "30d",
         interval: "1h"
       });
 
-      const closes = h.map(c => c.close).filter(Boolean);
-      if (closes.length < 55) continue;
+      if (!Array.isArray(h) || h.length < 10) {
+        result.push({
+          symbol: s.key,
+          bias: "Neutral",
+          last: null,
+          note: "No data"
+        });
+        continue;
+      }
 
-      const s20 = sma(closes, 20).at(-1);
-      const s50 = sma(closes, 50).at(-1);
+      const closes = h.map(c => c.close).filter(Boolean);
       const last = closes.at(-1);
 
       result.push({
         symbol: s.key,
-        bias: s20 > s50 ? "Bullish" : s20 < s50 ? "Bearish" : "Neutral",
+        bias: "Neutral",
         last
       });
-    }
 
-    res.json(result);
-  } catch (err) {
-    console.error("FORECAST ERROR:", err);
-    res.status(500).json({ error: "Forecast failed" });
+    } catch (err) {
+      console.error(`Forecast error (${s.key}):`, err.message);
+      result.push({
+        symbol: s.key,
+        bias: "Unavailable",
+        last: null
+      });
+    }
   }
+
+  res.json(result);
 });
 
-// ================= REALTIME (SSE) =================
+// ================= REALTIME STREAM (SSE) =================
 let clients = [];
 
 app.get("/api/stream", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
+  res.write("\n");
 
   clients.push(res);
 
@@ -204,6 +200,6 @@ cron.schedule("*/5 * * * *", async () => {
       c.write(`data: ${JSON.stringify(news)}\n\n`)
     );
   } catch (err) {
-    console.error("CRON ERROR:", err);
+    console.error("Cron error:", err.message);
   }
 });
