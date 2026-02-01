@@ -29,7 +29,7 @@ async function loadRates() {
       </div>
     `).join("");
   } catch {
-    ratesBox.innerHTML = "Rates unavailable";
+    ratesBox.innerHTML = "<p>Rates unavailable</p>";
   }
 }
 
@@ -91,23 +91,107 @@ async function loadNews() {
   applyFilters();
 }
 
-// ================= CHARTS PAGE =================
+// ================= CALENDAR =================
+async function loadEvents(offset) {
+  content.innerHTML = "<p>Loading economic calendar…</p>";
+
+  try {
+    const res = await fetch(`${API_BASE}/api/events?day=${offset}`);
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      content.innerHTML = `
+        <div class="card">
+          <h3>No economic events</h3>
+          <p>
+            There are no high or medium impact events
+            ${offset === 0 ? "today" : "tomorrow"}.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    content.innerHTML = data.map(e => `
+      <article class="card">
+        <h3>${e.title}</h3>
+        <p>
+          Impact: <strong>${e.impact}</strong><br>
+          Actual: ${e.actual || "N/A"} |
+          Forecast: ${e.forecast || "N/A"} |
+          Previous: ${e.previous || "N/A"}
+        </p>
+      </article>
+    `).join("");
+
+  } catch {
+    content.innerHTML = "<p>Failed to load calendar.</p>";
+  }
+}
+
+// ================= SIGNALS =================
+async function loadSignals() {
+  content.innerHTML = "<p>Loading market signals…</p>";
+
+  try {
+    const res = await fetch(`${API_BASE}/api/signals`);
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      content.innerHTML = `
+        <div class="card">
+          <h3>No signals available</h3>
+          <p>
+            There are currently no market signals.
+            Please check back later.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    content.innerHTML = `
+      <p style="color:#b45309;">
+        ⚠️ Educational analysis only. Not financial advice.
+      </p>
+    ` + data.map(s => `
+      <article class="card">
+        <h3>${s.symbol} (${s.timeframe})</h3>
+        <p>
+          Bias: <strong>${s.bias}</strong><br>
+          Expected Move: <strong>${s.expectedMove}</strong><br>
+          Entry Zone: ${s.entryZone[0]} – ${s.entryZone[1]}<br>
+          Target: ${s.target || "—"}<br>
+          Invalidation: ${s.invalidation || "—"}
+        </p>
+      </article>
+    `).join("");
+
+  } catch {
+    content.innerHTML = "<p>Failed to load signals.</p>";
+  }
+}
+
+// ================= ROUTER =================
+function handleRoute() {
+  const h = window.location.hash;
+
+  if (h === "#calendar-today") loadEvents(0);
+  else if (h === "#calendar-tomorrow") loadEvents(1);
+  else if (h === "#signals") loadSignals();
+  else if (h === "#charts") loadCharts();
+  else loadNews();
+}
+
+// ================= CHARTS =================
 function loadCharts() {
   content.innerHTML = `
-    <div class="chart-box">
-      <div id="tv1"></div>
-    </div>
-    <div class="chart-box">
-      <div id="tv2"></div>
-    </div>
-    <div class="chart-box">
-      <div id="tv3"></div>
-    </div>
+    <div class="chart-box"><div id="tv1"></div></div>
+    <div class="chart-box"><div id="tv2"></div></div>
   `;
 
   loadTradingView("tv1", "OANDA:EURUSD");
-  loadTradingView("tv2", "OANDA:XAUUSD");
-  loadTradingView("tv3", "BITSTAMP:BTCUSD");
+  loadTradingView("tv2", "BITSTAMP:BTCUSD");
 }
 
 function loadTradingView(container, symbol) {
@@ -119,21 +203,10 @@ function loadTradingView(container, symbol) {
       symbol,
       interval: "60",
       theme: "light",
-      style: "1",
       locale: "en"
     });
   };
   document.body.appendChild(script);
-}
-
-// ================= ROUTER =================
-function handleRoute() {
-  const h = window.location.hash;
-
-  if (h === "#charts") loadCharts();
-  else if (h === "#signals") loadSignals();
-  else if (h === "#calendar-today") loadEvents(0);
-  else loadNews();
 }
 
 // ================= INIT =================
