@@ -5,6 +5,9 @@
   --text: #e5e7eb;
   --muted: #9ca3af;
   --blue: #3b82f6;
+  --green: #22c55e;
+  --red: #ef4444;
+  --amber: #f59e0b;
   --glow: linear-gradient(90deg,#3b82f6,#8b5cf6,#3b82f6);
 }
 
@@ -100,9 +103,7 @@ body {
   margin-bottom: 60px;
 }
 
-.hero h1 {
-  font-size: 2.6rem;
-}
+.hero h1 { font-size: 2.6rem; }
 
 .hero span {
   background: linear-gradient(90deg,#60a5fa,#a78bfa);
@@ -138,6 +139,13 @@ body {
 .price {
   font-size: 1.6rem;
   font-weight: 700;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
 }
 
 .footer {
