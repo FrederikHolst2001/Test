@@ -1,6 +1,5 @@
 import "dotenv/config";
 import express from "express";
-import fetch from "node-fetch";
 import Parser from "rss-parser";
 import yahooFinance from "yahoo-finance2";
 
@@ -79,22 +78,7 @@ app.get("/api/prices", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch prices" });
   }
 });
-app.get("/api/signals", (req, res) => {
-  res.json([
-    {
-      symbol: "EUR/USD",
-      signal: "BUY",
-      confidence: "High",
-      reason: "Bullish momentum above support"
-    },
-    {
-      symbol: "GBP/USD",
-      signal: "SELL",
-      confidence: "Medium",
-      reason: "Bearish RSI divergence"
-    }
-  ]);
-});
+
 app.get("/api/analysis", (req, res) => {
   res.json([
     {
@@ -191,6 +175,7 @@ app.get("/api/signals", async (req, res) => {
 
   res.json(signals);
 });
+
 
 
 
