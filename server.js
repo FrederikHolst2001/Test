@@ -55,29 +55,38 @@ app.get("/api/news", async (req, res) => {
 });
 
 app.get("/api/prices", async (req, res) => {
-  try {
-    const symbols = [
-      { symbol: "EUR/USD", yahoo: "EURUSD=X" },
-      { symbol: "GBP/USD", yahoo: "GBPUSD=X" },
-      { symbol: "USD/JPY", yahoo: "JPY=X" }
-    ];
+  const symbols = [
+    { symbol: "EUR/USD", yahoo: "EURUSD=X" },
+    { symbol: "GBP/USD", yahoo: "GBPUSD=X" },
+    { symbol: "USD/JPY", yahoo: "USDJPY=X" }
+  ];
 
-    const prices = [];
+  const prices = [];
 
-    for (const s of symbols) {
+  for (const s of symbols) {
+    try {
       const q = await yahooFinance.quote(s.yahoo);
+
+      if (!q || typeof q.regularMarketPrice !== "number") {
+        throw new Error("Invalid price data");
+      }
+
       prices.push({
         symbol: s.symbol,
         price: q.regularMarketPrice
       });
+    } catch (err) {
+      console.error(`Price error for ${s.symbol}:`, err.message);
+      prices.push({
+        symbol: s.symbol,
+        price: null
+      });
     }
-
-    res.json(prices);
-  } catch (err) {
-    console.error("Yahoo price error:", err.message);
-    res.status(500).json({ error: "Failed to fetch prices" });
   }
+
+  res.json(prices);
 });
+
 
 app.get("/api/analysis", (req, res) => {
   res.json([
@@ -175,6 +184,7 @@ app.get("/api/signals", async (req, res) => {
 
   res.json(signals);
 });
+
 
 
 
