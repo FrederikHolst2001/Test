@@ -60,6 +60,11 @@ app.get("/api/prices", async (req, res) => {
     const response = await fetch(
       "https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP,JPY"
     );
+
+    if (!response.ok) {
+      throw new Error("External API error");
+    }
+
     const data = await response.json();
 
     const prices = [
@@ -70,7 +75,7 @@ app.get("/api/prices", async (req, res) => {
 
     res.json(prices);
   } catch (error) {
-    console.error(error);
+    console.error("Price fetch error:", error.message);
     res.status(500).json({ error: "Failed to fetch prices" });
   }
 });
@@ -186,4 +191,5 @@ app.get("/api/signals", async (req, res) => {
 
   res.json(signals);
 });
+
 
