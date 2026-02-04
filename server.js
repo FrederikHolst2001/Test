@@ -55,6 +55,56 @@ app.get("/api/news", async (req, res) => {
   res.json(await fetchExternalNews());
 });
 
+app.get("/api/prices", async (req, res) => {
+  try {
+    const response = await fetch(
+      "https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP,JPY"
+    );
+    const data = await response.json();
+
+    const prices = [
+      { symbol: "EUR/USD", price: data.rates.EUR },
+      { symbol: "GBP/USD", price: data.rates.GBP },
+      { symbol: "USD/JPY", price: data.rates.JPY }
+    ];
+
+    res.json(prices);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch prices" });
+  }
+});
+app.get("/api/signals", (req, res) => {
+  res.json([
+    {
+      symbol: "EUR/USD",
+      signal: "BUY",
+      confidence: "High",
+      reason: "Bullish momentum above support"
+    },
+    {
+      symbol: "GBP/USD",
+      signal: "SELL",
+      confidence: "Medium",
+      reason: "Bearish RSI divergence"
+    }
+  ]);
+});
+app.get("/api/analysis", (req, res) => {
+  res.json([
+    {
+      title: "EUR/USD Outlook",
+      text: "EUR/USD remains bullish above the 1.08 support level."
+    },
+    {
+      title: "USD Momentum",
+      text: "USD strength may slow ahead of CPI data this week."
+    }
+  ]);
+});
+
+
+
 // ---------- EVENTS ----------
 const FF_URL = "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
 
@@ -136,3 +186,4 @@ app.get("/api/signals", async (req, res) => {
 
   res.json(signals);
 });
+
