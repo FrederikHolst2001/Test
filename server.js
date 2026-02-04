@@ -56,25 +56,25 @@ app.get("/api/news", async (req, res) => {
 
 app.get("/api/prices", async (req, res) => {
   try {
-    const response = await fetch(
-      "https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP,JPY"
-    );
-
-    if (!response.ok) {
-      throw new Error("External API error");
-    }
-
-    const data = await response.json();
-
-    const prices = [
-      { symbol: "EUR/USD", price: data.rates.EUR },
-      { symbol: "GBP/USD", price: data.rates.GBP },
-      { symbol: "USD/JPY", price: data.rates.JPY }
+    const symbols = [
+      { symbol: "EUR/USD", yahoo: "EURUSD=X" },
+      { symbol: "GBP/USD", yahoo: "GBPUSD=X" },
+      { symbol: "USD/JPY", yahoo: "JPY=X" }
     ];
 
+    const prices = [];
+
+    for (const s of symbols) {
+      const q = await yahooFinance.quote(s.yahoo);
+      prices.push({
+        symbol: s.symbol,
+        price: q.regularMarketPrice
+      });
+    }
+
     res.json(prices);
-  } catch (error) {
-    console.error("Price fetch error:", error.message);
+  } catch (err) {
+    console.error("Yahoo price error:", err.message);
     res.status(500).json({ error: "Failed to fetch prices" });
   }
 });
@@ -175,6 +175,7 @@ app.get("/api/signals", async (req, res) => {
 
   res.json(signals);
 });
+
 
 
 
