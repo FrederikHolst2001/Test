@@ -113,7 +113,7 @@ app.get("/api/analysis", (req, res) => {
 // ---------- EVENTS ----------
 const FF_URL = "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
 
-app.get("/api/events", async (req, res) => {
+app.get("/api/calender", async (req, res) => {
   const offset = Number(req.query.day || 0);
   const target = new Date();
   target.setUTCDate(target.getUTCDate() + offset);
@@ -191,5 +191,6 @@ app.get("/api/signals", async (req, res) => {
 
   res.json(signals);
 });
+
 
 
