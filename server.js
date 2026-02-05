@@ -65,23 +65,22 @@ app.get("/api/prices", async (req, res) => {
 
   for (const s of symbols) {
     try {
-      const q = await yahooFinance.quote(s.yahoo);
+      const history = await yahooFinance.historical(s.yahoo, {
+        period1: "5d",
+        interval: "1h"
+      });
 
-      const price =
-        q.regularMarketPrice ??
-        q.postMarketPrice ??
-        q.preMarketPrice ??
-        q.bid ??
-        q.ask ??
-        q.previousClose ??
-        null;
+      const last = history
+        .map(h => h.close)
+        .filter(Boolean)
+        .at(-1);
 
       prices.push({
         symbol: s.symbol,
-        price
+        price: last ?? null
       });
     } catch (err) {
-      console.error(`Price error for ${s.symbol}:`, err.message);
+      console.error(`Historical price error for ${s.symbol}:`, err.message);
       prices.push({
         symbol: s.symbol,
         price: null
@@ -190,6 +189,7 @@ app.get("/api/signals", async (req, res) => {
 
   res.json(signals);
 });
+
 
 
 
