@@ -91,7 +91,42 @@ app.get("/api/prices", async (req, res) => {
   res.json(prices);
 });
 
+app.get("/api/prices2", async (req, res) => {
+  const symbols = [
+    { symbol: "EUR/USD", yahoo: "EURUSD=X" },
+    { symbol: "GBP/USD", yahoo: "GBPUSD=X" },
+    { symbol: "USD/JPY", yahoo: "USDJPY=X" }
+  ];
 
+  const prices = [];
+
+  for (const s of symbols) {
+    try {
+      const history = await yahooFinance.historical(s.yahoo, {
+        period1: "5d",
+        interval: "1h"
+      });
+
+      const last = history
+        .map(h => h.close)
+        .filter(Boolean)
+        .at(-1);
+
+      prices.push({
+        symbol: s.symbol,
+        price: last ?? null
+      });
+    } catch (err) {
+      console.error(`Historical price error for ${s.symbol}:`, err.message);
+      prices.push({
+        symbol: s.symbol,
+        price: null
+      });
+    }
+  }
+
+  res.json(prices);
+});
 
 app.get("/api/analysis", (req, res) => {
   res.json([
@@ -189,6 +224,7 @@ app.get("/api/signals", async (req, res) => {
 
   res.json(signals);
 });
+
 
 
 
