@@ -56,23 +56,21 @@ app.get("/api/news", async (req, res) => {
 
 app.get("/api/prices", async (req, res) => {
   try {
-    const r = await fetch(
-      "https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,JPY"
+    const response = await fetch(
+      "https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP,JPY"
     );
 
-    if (!r.ok) {
-      throw new Error("Frankfurter API error");
-    }
+    const data = await response.json();
 
-    const data = await r.json();
+    const prices = [
+      { symbol: "EUR/USD", price: +(1 / data.rates.EUR).toFixed(5) },
+      { symbol: "GBP/USD", price: +(1 / data.rates.GBP).toFixed(5) },
+      { symbol: "USD/JPY", price: +data.rates.JPY.toFixed(3) }
+    ];
 
-    res.json([
-      { symbol: "EUR/USD", price: data.rates.EUR },
-      { symbol: "GBP/USD", price: data.rates.GBP },
-      { symbol: "USD/JPY", price: data.rates.JPY }
-    ]);
+    res.json(prices);
   } catch (err) {
-    console.error("FX price error:", err.message);
+    console.error(err);
     res.status(500).json({ error: "Failed to fetch prices" });
   }
 });
@@ -198,6 +196,7 @@ app.get("/api/signals", async (req, res) => {
 
   res.json(signals);
 });
+
 
 
 
