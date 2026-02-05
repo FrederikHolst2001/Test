@@ -67,13 +67,18 @@ app.get("/api/prices", async (req, res) => {
     try {
       const q = await yahooFinance.quote(s.yahoo);
 
-      if (!q || typeof q.regularMarketPrice !== "number") {
-        throw new Error("Invalid price data");
-      }
+      const price =
+        q.regularMarketPrice ??
+        q.postMarketPrice ??
+        q.preMarketPrice ??
+        q.bid ??
+        q.ask ??
+        q.previousClose ??
+        null;
 
       prices.push({
         symbol: s.symbol,
-        price: q.regularMarketPrice
+        price
       });
     } catch (err) {
       console.error(`Price error for ${s.symbol}:`, err.message);
@@ -86,6 +91,7 @@ app.get("/api/prices", async (req, res) => {
 
   res.json(prices);
 });
+
 
 
 app.get("/api/analysis", (req, res) => {
@@ -184,6 +190,7 @@ app.get("/api/signals", async (req, res) => {
 
   res.json(signals);
 });
+
 
 
 
